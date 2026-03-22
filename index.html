@@ -758,6 +758,214 @@
     html[dir="rtl"] .mobile-toggle { right: 12px; left: auto; }
     html[dir="ltr"] .mobile-toggle { left: 12px; right: auto; }
 
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .rain-chat-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 0.65rem;
+    }
+
+    .rain-chat-loc {
+      font-size: 0.76rem;
+      color: #a5f3fc;
+      background: rgba(8, 47, 73, 0.35);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      padding: 0.45rem 0.55rem;
+      margin-bottom: 0.55rem;
+      font-variant-numeric: tabular-nums;
+      word-break: break-word;
+      min-height: 2.2em;
+    }
+
+    .rain-chat-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 0.65rem;
+    }
+
+    .rain-chat-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .chat-input,
+    .chat-textarea {
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.82rem;
+      padding: 0.45rem 0.55rem;
+      margin-bottom: 0.55rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+    }
+
+    .chat-textarea {
+      resize: vertical;
+      min-height: 52px;
+    }
+
+    .chat-btn {
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 0.45rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-elev);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .chat-btn:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .chat-btn-primary {
+      width: 100%;
+      margin-top: 0.35rem;
+      margin-bottom: 0.45rem;
+      background: rgba(14, 165, 233, 0.18);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #e0f2fe;
+    }
+
+    .chat-btn-ghost {
+      background: transparent;
+      font-size: 0.7rem;
+      padding: 0.35rem 0.5rem;
+    }
+
+    .chat-btn-file {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .rain-chat-photo-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0.45rem;
+    }
+
+    .chat-retention-select {
+      margin-bottom: 0.55rem;
+    }
+
+    .chat-bubble .chat-expires {
+      font-size: 0.64rem;
+      color: #64748b;
+      margin-top: 0.3rem;
+    }
+
+    .chat-photo-preview {
+      max-width: 100%;
+      max-height: 72px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+    }
+
+    .rain-chat-err {
+      font-size: 0.72rem;
+      color: var(--danger);
+      margin: 0.35rem 0;
+    }
+
+    .rain-chat-messages {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 0.65rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .chat-bubble {
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 0.55rem 0.6rem;
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .chat-bubble .chat-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .chat-bubble .chat-nick {
+      color: #7dd3fc;
+      font-weight: 700;
+    }
+
+    .chat-bubble .chat-thumb {
+      max-width: 100%;
+      max-height: 100px;
+      border-radius: 6px;
+      margin: 0.35rem 0;
+      display: block;
+      cursor: pointer;
+    }
+
+    .chat-bubble .chat-text {
+      margin: 0;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .chat-bubble .chat-place {
+      font-size: 0.68rem;
+      color: #94a3b8;
+      margin-top: 0.35rem;
+    }
+
+    .chat-bubble .chat-fly {
+      display: inline-block;
+      margin-top: 0.35rem;
+      font-size: 0.68rem;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+      border: none;
+      background: none;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .chat-bubble .chat-fly:hover {
+      color: #7dd3fc;
+    }
+
     @media (max-width: 900px) {
       .mobile-toggle { display: block; }
       .sidebar {
@@ -869,6 +1077,34 @@
           <p class="forecast-error" id="forecastError" hidden></p>
           <div id="forecastContent" hidden></div>
         </div>
+
+        <div class="section" id="rainChatSection">
+          <div class="section-title" id="tSecChat">تقارير المطر</div>
+          <p class="rain-chat-hint" id="tChatHint">يُحفظ على جهازك فقط — صورة المطر + الموقع</p>
+          <div class="rain-chat-loc" id="chatLocLabel" data-empty="1">—</div>
+          <div class="rain-chat-actions">
+            <button type="button" class="chat-btn" id="btnChatLocGps">موقعي (GPS)</button>
+            <button type="button" class="chat-btn" id="btnChatLocMap">وسط الخريطة</button>
+          </div>
+          <label class="rain-chat-label" id="tChatNick" for="chatNick">الاسم (اختياري)</label>
+          <input type="text" id="chatNick" class="chat-input" maxlength="40" autocomplete="nickname" />
+          <label class="rain-chat-label" id="tChatMsg" for="chatText">الرسالة</label>
+          <textarea id="chatText" class="chat-textarea" rows="2" maxlength="500"></textarea>
+          <label class="rain-chat-label" id="tChatRetention" for="chatRetention">مدة ظهور التقرير</label>
+          <select id="chatRetention" class="forecast-select chat-retention-select" aria-label="مدة التقرير"></select>
+          <div class="rain-chat-photo-row">
+            <label class="chat-btn chat-btn-file">
+              <input type="file" id="chatPhoto" class="visually-hidden" accept="image/*" capture="environment" />
+              <span id="tChatPhoto">📷 صورة المطر</span>
+            </label>
+            <img id="chatPhotoPreview" class="chat-photo-preview" alt="" hidden />
+            <button type="button" class="chat-btn chat-btn-ghost" id="btnChatPhotoClear" hidden>✕</button>
+          </div>
+          <button type="button" class="chat-btn chat-btn-primary" id="btnChatSend">إرسال التقرير</button>
+          <p class="rain-chat-err" id="chatErr" hidden></p>
+          <div class="rain-chat-messages" id="chatMessages" aria-live="polite"></div>
+          <button type="button" class="chat-btn chat-btn-ghost" id="btnChatClear">مسح الكل من الجهاز</button>
+        </div>
       </div>
 
       <div class="sb-foot">
@@ -976,6 +1212,36 @@
         zoomInTitle: "تكبير الخريطة",
         zoomOutTitle: "تصغير الخريطة",
         fullscreenTitle: "ملء الشاشة أو الخروج",
+        secChat: "تقارير المطر",
+        chatHint: "تُحفظ على هذا الجهاز فقط — صورة + موقع (للمشاركة بين المستخدمين لاحقاً يلزم خادم)",
+        chatLocUnset: "لم يُحدد موقع — اضغط «موقعي» أو «وسط الخريطة»",
+        chatLocGps: "موقعي (GPS)",
+        chatLocMap: "وسط الخريطة",
+        chatNick: "الاسم (اختياري)",
+        chatNickPh: "مثلاً: أحمد",
+        chatMsg: "وصف المطر أو الملاحظة",
+        chatMsgPh: "مثلاً: أمطار غزيرة على الشارع…",
+        chatPhoto: "📷 صورة المطر",
+        chatSend: "إرسال التقرير",
+        chatClear: "مسح كل التقارير من الجهاز",
+        chatPhotoClear: "إزالة الصورة",
+        chatErrEmpty: "اكتب رسالة أو أرفق صورة، وحدّد الموقع.",
+        chatErrLoc: "حدّد الموقع أولاً (GPS أو وسط الخريطة).",
+        chatErrPhoto: "تعذّر ضغط الصورة. جرّب صورة أصغر.",
+        chatErrGeo: "تعذّر الحصول على الموقع. تحقق من أذونات المتصفح.",
+        chatNoReports: "لا توجد تقارير بعد.",
+        chatOnMap: "عرض على الخريطة",
+        chatSaved: "تم حفظ التقرير",
+        chatClearConfirm: "مسح كل التقارير المحفوظة على هذا الجهاز؟",
+        chatRetention: "مدة ظهور التقرير على الجهاز",
+        chatRet6h: "6 ساعات",
+        chatRet12h: "12 ساعة",
+        chatRet24h: "يوم كامل (24 ساعة) — افتراضي",
+        chatRet3d: "3 أيام",
+        chatRet7d: "أسبوع (7 أيام)",
+        chatRetForever: "حتى الحذف اليدوي (لا تنتهي تلقائياً)",
+        chatExpiresNever: "لا تنتهي تلقائياً",
+        chatExpiresAt: "ينتهي تلقائياً:",
       },
       en: {
         menu: "Menu",
@@ -1026,11 +1292,48 @@
         zoomInTitle: "Zoom in",
         zoomOutTitle: "Zoom out",
         fullscreenTitle: "Fullscreen / exit",
+        secChat: "Rain reports",
+        chatHint: "Saved on this device only — photo + location (a server is needed to share with others)",
+        chatLocUnset: "No location yet — use GPS or map center",
+        chatLocGps: "My location (GPS)",
+        chatLocMap: "Map center",
+        chatNick: "Name (optional)",
+        chatNickPh: "e.g. Ali",
+        chatMsg: "Message",
+        chatMsgPh: "e.g. Heavy rain on the road…",
+        chatPhoto: "📷 Rain photo",
+        chatSend: "Send report",
+        chatClear: "Clear all on this device",
+        chatPhotoClear: "Remove photo",
+        chatErrEmpty: "Write a message or attach a photo, and set a location.",
+        chatErrLoc: "Set a location first (GPS or map center).",
+        chatErrPhoto: "Could not process the image. Try a smaller file.",
+        chatErrGeo: "Could not get location. Check browser permissions.",
+        chatNoReports: "No reports yet.",
+        chatOnMap: "Show on map",
+        chatSaved: "Report saved",
+        chatClearConfirm: "Delete all saved reports on this device?",
+        chatRetention: "How long the report stays on this device",
+        chatRet6h: "6 hours",
+        chatRet12h: "12 hours",
+        chatRet24h: "1 full day (24 h) — default",
+        chatRet3d: "3 days",
+        chatRet7d: "1 week (7 days)",
+        chatRetForever: "Until I delete it (no auto-expiry)",
+        chatExpiresNever: "No auto-expiry",
+        chatExpiresAt: "Auto-removes:",
       },
     };
 
     let lang = "ar";
     let forecastData = null;
+
+    const CHAT_STORAGE_KEY = "uaeRainChat_v1";
+    let chatPendingLat = null;
+    let chatPendingLon = null;
+    let chatPendingPlace = null;
+    let chatPhotoDataUrl = null;
+    let rainChatMessages = [];
 
     function applyLang() {
       const L = I18N[lang];
@@ -1105,6 +1408,83 @@
       setRadarLegendVisible(els.togRadar.checked);
       renderStations();
       if (forecastData) renderForecast();
+      const tSecChat = document.getElementById("tSecChat");
+      if (tSecChat) tSecChat.textContent = L.secChat;
+      const tChatHint = document.getElementById("tChatHint");
+      if (tChatHint) tChatHint.textContent = L.chatHint;
+      const btnChatLocGps = document.getElementById("btnChatLocGps");
+      if (btnChatLocGps) btnChatLocGps.textContent = L.chatLocGps;
+      const btnChatLocMap = document.getElementById("btnChatLocMap");
+      if (btnChatLocMap) btnChatLocMap.textContent = L.chatLocMap;
+      const tChatNick = document.getElementById("tChatNick");
+      if (tChatNick) tChatNick.textContent = L.chatNick;
+      const chatNick = document.getElementById("chatNick");
+      if (chatNick) chatNick.placeholder = L.chatNickPh;
+      const tChatMsg = document.getElementById("tChatMsg");
+      if (tChatMsg) tChatMsg.textContent = L.chatMsg;
+      const chatText = document.getElementById("chatText");
+      if (chatText) chatText.placeholder = L.chatMsgPh;
+      const tChatPhoto = document.getElementById("tChatPhoto");
+      if (tChatPhoto) tChatPhoto.textContent = L.chatPhoto;
+      const btnChatPhotoClear = document.getElementById("btnChatPhotoClear");
+      if (btnChatPhotoClear) btnChatPhotoClear.setAttribute("aria-label", L.chatPhotoClear);
+      const btnChatSend = document.getElementById("btnChatSend");
+      if (btnChatSend) btnChatSend.textContent = L.chatSend;
+      const btnChatClear = document.getElementById("btnChatClear");
+      if (btnChatClear) btnChatClear.textContent = L.chatClear;
+      const tChatRetention = document.getElementById("tChatRetention");
+      if (tChatRetention) tChatRetention.textContent = L.chatRetention;
+      fillChatRetentionSelect();
+      updateChatLocLabel();
+      pruneExpiredChat();
+      renderChatMessages();
+    }
+
+    function fillChatRetentionSelect() {
+      const sel = document.getElementById("chatRetention");
+      if (!sel) return;
+      const v = sel.value;
+      const loc = I18N[lang];
+      const opts = [
+        { h: "6", t: loc.chatRet6h },
+        { h: "12", t: loc.chatRet12h },
+        { h: "24", t: loc.chatRet24h },
+        { h: "72", t: loc.chatRet3d },
+        { h: "168", t: loc.chatRet7d },
+        { h: "0", t: loc.chatRetForever },
+      ];
+      sel.innerHTML = opts.map((o) => '<option value="' + o.h + '">' + o.t + "</option>").join("");
+      sel.value = opts.some((x) => x.h === v) ? v : "24";
+      sel.setAttribute("aria-label", loc.chatRetention);
+    }
+
+    function migrateChatExpires() {
+      const day = 24 * 60 * 60 * 1000;
+      rainChatMessages.forEach((m) => {
+        if (m.expiresAt === undefined) m.expiresAt = m.ts + day;
+      });
+    }
+
+    function pruneExpiredChat() {
+      const now = Date.now();
+      const n = rainChatMessages.length;
+      rainChatMessages = rainChatMessages.filter((m) => m.expiresAt == null || m.expiresAt > now);
+      if (rainChatMessages.length !== n) saveChatToStorage();
+    }
+
+    function formatChatExpiryLine(m) {
+      const loc = I18N[lang];
+      const locale = lang === "ar" ? "ar-AE" : "en-GB";
+      if (m.expiresAt == null) {
+        return '<div class="chat-expires">' + escapeHtml(loc.chatExpiresNever) + "</div>";
+      }
+      const d = new Date(m.expiresAt);
+      const s = d.toLocaleString(locale, {
+        timeZone: "Asia/Dubai",
+        dateStyle: "short",
+        timeStyle: "short",
+      });
+      return '<div class="chat-expires">' + escapeHtml(loc.chatExpiresAt) + " " + escapeHtml(s) + "</div>";
     }
 
     /** إحداثيات مرجعية (مراكز مدنية تقريبية، ~±5 أرقام عشرية) */
@@ -1430,6 +1810,296 @@
 
     const stationGroup = L.layerGroup().addTo(map);
     const stationMarkers = [];
+
+    const chatReportsGroup = L.layerGroup().addTo(map);
+
+    function escapeHtml(s) {
+      if (s == null) return "";
+      const d = document.createElement("div");
+      d.textContent = String(s);
+      return d.innerHTML;
+    }
+
+    function loadChatFromStorage() {
+      try {
+        const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+        if (!raw) {
+          rainChatMessages = [];
+          return;
+        }
+        const p = JSON.parse(raw);
+        rainChatMessages = Array.isArray(p) ? p : [];
+        migrateChatExpires();
+        pruneExpiredChat();
+      } catch (e) {
+        rainChatMessages = [];
+      }
+    }
+
+    function saveChatToStorage() {
+      try {
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(rainChatMessages));
+      } catch (e) {
+        while (rainChatMessages.length > 1) {
+          rainChatMessages.shift();
+          try {
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(rainChatMessages));
+            return;
+          } catch (e2) {}
+        }
+      }
+    }
+
+    function compressImageToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const maxW = 800;
+              let w = img.width;
+              let h = img.height;
+              if (w > maxW) {
+                h = (h * maxW) / w;
+                w = maxW;
+              }
+              const c = document.createElement("canvas");
+              c.width = w;
+              c.height = h;
+              const ctx = c.getContext("2d");
+              ctx.drawImage(img, 0, 0, w, h);
+              resolve(c.toDataURL("image/jpeg", 0.82));
+            } catch (err) {
+              reject(err);
+            }
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function reverseGeocodeChat(lat, lon) {
+      try {
+        const u =
+          "https://geocoding-api.open-meteo.com/v1/reverse?latitude=" +
+          lat +
+          "&longitude=" +
+          lon +
+          "&language=" +
+          (lang === "ar" ? "ar" : "en");
+        const res = await fetch(u);
+        if (!res.ok) return null;
+        const j = await res.json();
+        if (!j.results || !j.results[0]) return null;
+        const r = j.results[0];
+        return r.name || r.admin1 || r.country || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function showChatErr(msg) {
+      const el = document.getElementById("chatErr");
+      if (el) {
+        el.textContent = msg;
+        el.hidden = false;
+      }
+    }
+
+    function hideChatErr() {
+      const el = document.getElementById("chatErr");
+      if (el) el.hidden = true;
+    }
+
+    function updateChatLocLabel() {
+      const el = document.getElementById("chatLocLabel");
+      const loc = I18N[lang];
+      if (!el) return;
+      if (chatPendingLat == null || chatPendingLon == null) {
+        el.textContent = loc.chatLocUnset;
+        el.dataset.empty = "1";
+        return;
+      }
+      el.dataset.empty = "0";
+      const coords = chatPendingLat.toFixed(4) + ", " + chatPendingLon.toFixed(4);
+      el.textContent = chatPendingPlace ? "📍 " + chatPendingPlace + " · " + coords : "📍 " + coords;
+    }
+
+    function renderChatMessages() {
+      const box = document.getElementById("chatMessages");
+      const loc = I18N[lang];
+      if (!box || !chatReportsGroup) return;
+      pruneExpiredChat();
+      chatReportsGroup.clearLayers();
+      if (!rainChatMessages.length) {
+        box.innerHTML = '<p class="forecast-muted">' + escapeHtml(loc.chatNoReports) + "</p>";
+        return;
+      }
+      const locale = lang === "ar" ? "ar-AE" : "en-GB";
+      let html = "";
+      for (let i = rainChatMessages.length - 1; i >= 0; i--) {
+        const m = rainChatMessages[i];
+        const t = new Date(m.ts);
+        const timeStr = t.toLocaleString(locale, { timeZone: "Asia/Dubai", dateStyle: "short", timeStyle: "short" });
+        const nick = m.nick || (lang === "ar" ? "مستخدم" : "User");
+        const placeLine = m.placeName
+          ? "📍 " + escapeHtml(m.placeName) + " · " + Number(m.lat).toFixed(3) + ", " + Number(m.lon).toFixed(3)
+          : "📍 " + Number(m.lat).toFixed(3) + ", " + Number(m.lon).toFixed(3);
+        html += '<div class="chat-bubble">';
+        html += '<div class="chat-meta"><span class="chat-nick">' + escapeHtml(nick) + "</span><span>" + escapeHtml(timeStr) + "</span></div>";
+        if (m.photoDataUrl) {
+          html += '<img class="chat-thumb" src="' + m.photoDataUrl + '" alt="" />';
+        }
+        if (m.text) {
+          html += '<p class="chat-text">' + escapeHtml(m.text) + "</p>";
+        }
+        html += '<div class="chat-place">' + placeLine + "</div>";
+        html += formatChatExpiryLine(m);
+        html +=
+          '<button type="button" class="chat-fly" data-lat="' +
+          Number(m.lat) +
+          '" data-lon="' +
+          Number(m.lon) +
+          '">' +
+          escapeHtml(loc.chatOnMap) +
+          "</button>";
+        html += "</div>";
+
+        const mk = L.circleMarker([m.lat, m.lon], {
+          radius: 7,
+          color: "#22d3ee",
+          weight: 2,
+          fillColor: "#0891b2",
+          fillOpacity: 0.85,
+          zIndexOffset: 750,
+        });
+        let popHtml = "<strong>" + escapeHtml(nick) + "</strong>";
+        if (m.text) {
+          const sn = m.text.length > 140 ? m.text.slice(0, 140) + "…" : m.text;
+          popHtml += "<br/>" + escapeHtml(sn);
+        }
+        if (m.photoDataUrl) {
+          popHtml += '<br/><img src="' + m.photoDataUrl + '" alt="" style="max-width:140px;border-radius:6px;margin-top:6px"/>';
+        }
+        mk.bindPopup(popHtml);
+        mk.addTo(chatReportsGroup);
+      }
+      box.innerHTML = html;
+      box.querySelectorAll(".chat-fly").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const la = parseFloat(btn.getAttribute("data-lat"));
+          const lo = parseFloat(btn.getAttribute("data-lon"));
+          map.setView([la, lo], Math.max(map.getZoom(), 11));
+        });
+      });
+    }
+
+    loadChatFromStorage();
+
+    document.getElementById("btnChatLocGps").addEventListener("click", () => {
+      const loc = I18N[lang];
+      if (!navigator.geolocation) {
+        showChatErr(loc.chatErrGeo);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          chatPendingLat = pos.coords.latitude;
+          chatPendingLon = pos.coords.longitude;
+          chatPendingPlace = await reverseGeocodeChat(chatPendingLat, chatPendingLon);
+          hideChatErr();
+          updateChatLocLabel();
+        },
+        () => showChatErr(loc.chatErrGeo),
+        { enableHighAccuracy: true, timeout: 18000, maximumAge: 60000 }
+      );
+    });
+
+    document.getElementById("btnChatLocMap").addEventListener("click", async () => {
+      const c = map.getCenter();
+      chatPendingLat = c.lat;
+      chatPendingLon = c.lng;
+      chatPendingPlace = await reverseGeocodeChat(chatPendingLat, chatPendingLon);
+      hideChatErr();
+      updateChatLocLabel();
+    });
+
+    document.getElementById("chatPhoto").addEventListener("change", async (ev) => {
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      try {
+        chatPhotoDataUrl = await compressImageToDataUrl(f);
+        const prev = document.getElementById("chatPhotoPreview");
+        const clr = document.getElementById("btnChatPhotoClear");
+        if (prev) {
+          prev.src = chatPhotoDataUrl;
+          prev.hidden = false;
+        }
+        if (clr) clr.hidden = false;
+        hideChatErr();
+      } catch (e) {
+        chatPhotoDataUrl = null;
+        showChatErr(I18N[lang].chatErrPhoto);
+      }
+      ev.target.value = "";
+    });
+
+    document.getElementById("btnChatPhotoClear").addEventListener("click", () => {
+      chatPhotoDataUrl = null;
+      const prev = document.getElementById("chatPhotoPreview");
+      const clr = document.getElementById("btnChatPhotoClear");
+      if (prev) {
+        prev.removeAttribute("src");
+        prev.hidden = true;
+      }
+      if (clr) clr.hidden = true;
+    });
+
+    document.getElementById("btnChatSend").addEventListener("click", () => {
+      const loc = I18N[lang];
+      const text = (document.getElementById("chatText").value || "").trim();
+      const nick = (document.getElementById("chatNick").value || "").trim();
+      if (chatPendingLat == null || chatPendingLon == null) {
+        showChatErr(loc.chatErrLoc);
+        return;
+      }
+      if (!text && !chatPhotoDataUrl) {
+        showChatErr(loc.chatErrEmpty);
+        return;
+      }
+      const retSel = document.getElementById("chatRetention");
+      const hours = parseFloat(retSel?.value ?? "24", 10);
+      let expiresAt = null;
+      if (hours > 0 && !Number.isNaN(hours)) {
+        expiresAt = Date.now() + hours * 3600000;
+      }
+      rainChatMessages.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 9),
+        ts: Date.now(),
+        nick: nick || "",
+        text: text,
+        photoDataUrl: chatPhotoDataUrl || null,
+        lat: chatPendingLat,
+        lon: chatPendingLon,
+        placeName: chatPendingPlace || null,
+        expiresAt: expiresAt,
+      });
+      saveChatToStorage();
+      document.getElementById("chatText").value = "";
+      hideChatErr();
+      renderChatMessages();
+    });
+
+    document.getElementById("btnChatClear").addEventListener("click", () => {
+      if (!confirm(I18N[lang].chatClearConfirm)) return;
+      rainChatMessages = [];
+      saveChatToStorage();
+      renderChatMessages();
+    });
 
     const GCC_ISO = new Set(["ARE", "SAU", "OMN", "QAT", "BHR", "KWT"]);
     const NE_GEOJSON_URL =
@@ -1823,6 +2493,12 @@
     setInterval(() => {
       if (anyObsToggle()) fetchAndRenderStations();
     }, 10 * 60 * 1000);
+
+    setInterval(() => {
+      const n = rainChatMessages.length;
+      pruneExpiredChat();
+      if (rainChatMessages.length !== n) renderChatMessages();
+    }, 60 * 1000);
   </script>
 </body>
 </html>
