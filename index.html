@@ -1161,7 +1161,34 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script>
+    /*
+      مشاركة التقارير مع الجميع (Firebase):
+      1) أنشئ مشروعاً من console.firebase.google.com
+      2) فعّل Authentication → Sign-in method → Anonymous
+      3) أنشئ Firestore Database (وضع اختبار أو قواعدك أدناه)
+      4) انسخ إعدادات تطبيق الويب والصقها في FIREBASE_CONFIG أدناه
+
+      قواعد Firestore مقترحة (لوحة Firebase → Firestore → Rules):
+      rules_version = '2';
+      service cloud.firestore {
+        match /databases/{database}/documents {
+          match /rainReports/{id} {
+            allow read: if true;
+            allow create: if request.auth != null
+              && request.resource.data.ts is number
+              && request.resource.data.lat is number
+              && request.resource.data.lon is number
+              && request.resource.data.nick is string
+              && request.resource.data.text is string;
+            allow update, delete: if false;
+          }
+        }
+      }
+    */
     const I18N = {
       ar: {
         menu: "القائمة",
@@ -1213,7 +1240,8 @@
         zoomOutTitle: "تصغير الخريطة",
         fullscreenTitle: "ملء الشاشة أو الخروج",
         secChat: "تقارير المطر",
-        chatHint: "تُحفظ على هذا الجهاز فقط — صورة + موقع (للمشاركة بين المستخدمين لاحقاً يلزم خادم)",
+        chatHint: "تُحفظ على هذا الجهاز فقط — للجميع: اضبط FIREBASE_CONFIG في الكود (Firebase).",
+        chatHintShared: "تظهر لجميع المستخدمين عبر السحابة (Firebase).",
         chatLocUnset: "لم يُحدد موقع — اضغط «موقعي» أو «وسط الخريطة»",
         chatLocGps: "موقعي (GPS)",
         chatLocMap: "وسط الخريطة",
@@ -1234,6 +1262,7 @@
         chatSaved: "تم حفظ التقرير",
         chatClearConfirm: "مسح كل التقارير المحفوظة على هذا الجهاز؟",
         chatRetention: "مدة ظهور التقرير على الجهاز",
+        chatRetentionEveryone: "مدة ظهور التقرير للجميع",
         chatRet6h: "6 ساعات",
         chatRet12h: "12 ساعة",
         chatRet24h: "يوم كامل (24 ساعة) — افتراضي",
@@ -1242,6 +1271,9 @@
         chatRetForever: "حتى الحذف اليدوي (لا تنتهي تلقائياً)",
         chatExpiresNever: "لا تنتهي تلقائياً",
         chatExpiresAt: "ينتهي تلقائياً:",
+        chatErrFirebase: "تعذّر الاتصال بالسحابة. تحقق من Firebase أو حاول لاحقاً.",
+        chatPhotoTooBig: "الصورة كبيرة جداً للرفع. جرّب صورة أصغر أو بدون صورة.",
+        chatClearDisabled: "التقارير المشتركة لا تُمسح من هنا (تختفي عند انتهاء المدة).",
       },
       en: {
         menu: "Menu",
@@ -1293,7 +1325,8 @@
         zoomOutTitle: "Zoom out",
         fullscreenTitle: "Fullscreen / exit",
         secChat: "Rain reports",
-        chatHint: "Saved on this device only — photo + location (a server is needed to share with others)",
+        chatHint: "Saved on this device only — for everyone: set FIREBASE_CONFIG in the code.",
+        chatHintShared: "Visible to everyone via Firebase.",
         chatLocUnset: "No location yet — use GPS or map center",
         chatLocGps: "My location (GPS)",
         chatLocMap: "Map center",
@@ -1314,6 +1347,7 @@
         chatSaved: "Report saved",
         chatClearConfirm: "Delete all saved reports on this device?",
         chatRetention: "How long the report stays on this device",
+        chatRetentionEveryone: "How long everyone sees the report",
         chatRet6h: "6 hours",
         chatRet12h: "12 hours",
         chatRet24h: "1 full day (24 h) — default",
@@ -1322,13 +1356,35 @@
         chatRetForever: "Until I delete it (no auto-expiry)",
         chatExpiresNever: "No auto-expiry",
         chatExpiresAt: "Auto-removes:",
+        chatErrFirebase: "Could not reach the cloud. Check Firebase or try later.",
+        chatPhotoTooBig: "Image too large to upload. Try a smaller photo or text only.",
+        chatClearDisabled: "Shared reports are not cleared from here (they expire by time).",
       },
     };
+
+    const FIREBASE_CONFIG = {
+      apiKey: "YOUR_WEB_API_KEY",
+      authDomain: "your-project.firebaseapp.com",
+      projectId: "your-project-id",
+      storageBucket: "your-project.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:0000000000000000000000",
+    };
+
+    function isFirebaseChatConfigured() {
+      const k = String(FIREBASE_CONFIG.apiKey || "");
+      return k.length > 16 && !/^YOUR_/i.test(k);
+    }
 
     let lang = "ar";
     let forecastData = null;
 
+    let useSharedReports = false;
+    let chatFirestoreUnsub = null;
+
     const CHAT_STORAGE_KEY = "uaeRainChat_v1";
+    const CHAT_FIRESTORE_COLLECTION = "rainReports";
+    const CHAT_MAX_PHOTO_CHARS = 700000;
     let chatPendingLat = null;
     let chatPendingLon = null;
     let chatPendingPlace = null;
@@ -1411,7 +1467,7 @@
       const tSecChat = document.getElementById("tSecChat");
       if (tSecChat) tSecChat.textContent = L.secChat;
       const tChatHint = document.getElementById("tChatHint");
-      if (tChatHint) tChatHint.textContent = L.chatHint;
+      if (tChatHint) tChatHint.textContent = useSharedReports ? L.chatHintShared : L.chatHint;
       const btnChatLocGps = document.getElementById("btnChatLocGps");
       if (btnChatLocGps) btnChatLocGps.textContent = L.chatLocGps;
       const btnChatLocMap = document.getElementById("btnChatLocMap");
@@ -1430,11 +1486,16 @@
       if (btnChatPhotoClear) btnChatPhotoClear.setAttribute("aria-label", L.chatPhotoClear);
       const btnChatSend = document.getElementById("btnChatSend");
       if (btnChatSend) btnChatSend.textContent = L.chatSend;
-      const btnChatClear = document.getElementById("btnChatClear");
-      if (btnChatClear) btnChatClear.textContent = L.chatClear;
       const tChatRetention = document.getElementById("tChatRetention");
-      if (tChatRetention) tChatRetention.textContent = L.chatRetention;
+      if (tChatRetention) tChatRetention.textContent = useSharedReports ? L.chatRetentionEveryone : L.chatRetention;
       fillChatRetentionSelect();
+      const btnChatClear = document.getElementById("btnChatClear");
+      if (btnChatClear) {
+        btnChatClear.textContent = L.chatClear;
+        btnChatClear.disabled = !!useSharedReports;
+        btnChatClear.title = useSharedReports ? L.chatClearDisabled : "";
+        btnChatClear.style.opacity = useSharedReports ? "0.45" : "";
+      }
       updateChatLocLabel();
       pruneExpiredChat();
       renderChatMessages();
@@ -1455,7 +1516,7 @@
       ];
       sel.innerHTML = opts.map((o) => '<option value="' + o.h + '">' + o.t + "</option>").join("");
       sel.value = opts.some((x) => x.h === v) ? v : "24";
-      sel.setAttribute("aria-label", loc.chatRetention);
+      sel.setAttribute("aria-label", useSharedReports ? loc.chatRetentionEveryone : loc.chatRetention);
     }
 
     function migrateChatExpires() {
@@ -1466,6 +1527,7 @@
     }
 
     function pruneExpiredChat() {
+      if (useSharedReports) return;
       const now = Date.now();
       const n = rainChatMessages.length;
       rainChatMessages = rainChatMessages.filter((m) => m.expiresAt == null || m.expiresAt > now);
@@ -1837,6 +1899,7 @@
     }
 
     function saveChatToStorage() {
+      if (useSharedReports) return;
       try {
         localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(rainChatMessages));
       } catch (e) {
@@ -1850,6 +1913,63 @@
       }
     }
 
+    async function initFirebaseChat() {
+      if (!isFirebaseChatConfigured()) return;
+      if (typeof firebase === "undefined") {
+        throw new Error("Firebase SDK not loaded");
+      }
+      if (chatFirestoreUnsub) {
+        chatFirestoreUnsub();
+        chatFirestoreUnsub = null;
+      }
+      if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      await firebase.auth().signInAnonymously();
+      const db = firebase.firestore();
+      useSharedReports = true;
+      chatFirestoreUnsub = db
+        .collection(CHAT_FIRESTORE_COLLECTION)
+        .orderBy("ts", "desc")
+        .limit(200)
+        .onSnapshot(
+          (snap) => {
+            const arr = [];
+            snap.forEach((doc) => {
+              const d = doc.data();
+              const exp = d.expiresAt;
+              arr.push({
+                id: doc.id,
+                ts: typeof d.ts === "number" ? d.ts : 0,
+                nick: typeof d.nick === "string" ? d.nick : "",
+                text: typeof d.text === "string" ? d.text : "",
+                photoDataUrl: typeof d.photoDataUrl === "string" && d.photoDataUrl ? d.photoDataUrl : null,
+                lat: typeof d.lat === "number" ? d.lat : 0,
+                lon: typeof d.lon === "number" ? d.lon : 0,
+                placeName: d.placeName == null ? null : String(d.placeName),
+                expiresAt: exp === undefined || exp === null ? null : Number(exp),
+              });
+            });
+            arr.reverse();
+            rainChatMessages = arr;
+            renderChatMessages();
+          },
+          () => {
+            if (chatFirestoreUnsub) {
+              chatFirestoreUnsub();
+              chatFirestoreUnsub = null;
+            }
+            useSharedReports = false;
+            showChatErr(I18N[lang].chatErrFirebase);
+            loadChatFromStorage();
+            migrateChatExpires();
+            pruneExpiredChat();
+            applyLang();
+            renderChatMessages();
+          }
+        );
+    }
+
     function compressImageToDataUrl(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -1857,7 +1977,7 @@
           const img = new Image();
           img.onload = () => {
             try {
-              const maxW = 800;
+              const maxW = 560;
               let w = img.width;
               let h = img.height;
               if (w > maxW) {
@@ -1869,7 +1989,7 @@
               c.height = h;
               const ctx = c.getContext("2d");
               ctx.drawImage(img, 0, 0, w, h);
-              resolve(c.toDataURL("image/jpeg", 0.82));
+              resolve(c.toDataURL("image/jpeg", 0.72));
             } catch (err) {
               reject(err);
             }
@@ -1934,15 +2054,19 @@
       const loc = I18N[lang];
       if (!box || !chatReportsGroup) return;
       pruneExpiredChat();
+      const now = Date.now();
+      const list = useSharedReports
+        ? rainChatMessages.filter((m) => m.expiresAt == null || m.expiresAt > now)
+        : rainChatMessages;
       chatReportsGroup.clearLayers();
-      if (!rainChatMessages.length) {
+      if (!list.length) {
         box.innerHTML = '<p class="forecast-muted">' + escapeHtml(loc.chatNoReports) + "</p>";
         return;
       }
       const locale = lang === "ar" ? "ar-AE" : "en-GB";
       let html = "";
-      for (let i = rainChatMessages.length - 1; i >= 0; i--) {
-        const m = rainChatMessages[i];
+      for (let i = list.length - 1; i >= 0; i--) {
+        const m = list[i];
         const t = new Date(m.ts);
         const timeStr = t.toLocaleString(locale, { timeZone: "Asia/Dubai", dateStyle: "short", timeStyle: "short" });
         const nick = m.nick || (lang === "ar" ? "مستخدم" : "User");
@@ -1997,8 +2121,6 @@
         });
       });
     }
-
-    loadChatFromStorage();
 
     document.getElementById("btnChatLocGps").addEventListener("click", () => {
       const loc = I18N[lang];
@@ -2059,7 +2181,7 @@
       if (clr) clr.hidden = true;
     });
 
-    document.getElementById("btnChatSend").addEventListener("click", () => {
+    document.getElementById("btnChatSend").addEventListener("click", async () => {
       const loc = I18N[lang];
       const text = (document.getElementById("chatText").value || "").trim();
       const nick = (document.getElementById("chatNick").value || "").trim();
@@ -2071,30 +2193,54 @@
         showChatErr(loc.chatErrEmpty);
         return;
       }
+      if (chatPhotoDataUrl && chatPhotoDataUrl.length > CHAT_MAX_PHOTO_CHARS) {
+        showChatErr(loc.chatPhotoTooBig);
+        return;
+      }
       const retSel = document.getElementById("chatRetention");
       const hours = parseFloat(retSel?.value ?? "24", 10);
       let expiresAt = null;
       if (hours > 0 && !Number.isNaN(hours)) {
         expiresAt = Date.now() + hours * 3600000;
       }
-      rainChatMessages.push({
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 9),
-        ts: Date.now(),
+      const ts = Date.now();
+      const base = {
+        ts: ts,
         nick: nick || "",
-        text: text,
-        photoDataUrl: chatPhotoDataUrl || null,
+        text: text || "",
         lat: chatPendingLat,
         lon: chatPendingLon,
         placeName: chatPendingPlace || null,
         expiresAt: expiresAt,
-      });
-      saveChatToStorage();
+      };
+      if (useSharedReports && typeof firebase !== "undefined") {
+        try {
+          const row = Object.assign({}, base);
+          if (chatPhotoDataUrl) row.photoDataUrl = chatPhotoDataUrl;
+          await firebase.firestore().collection(CHAT_FIRESTORE_COLLECTION).add(row);
+        } catch (e) {
+          showChatErr(loc.chatErrFirebase);
+          return;
+        }
+      } else {
+        rainChatMessages.push(
+          Object.assign(
+            {
+              id: ts.toString(36) + Math.random().toString(36).slice(2, 9),
+              photoDataUrl: chatPhotoDataUrl || null,
+            },
+            base
+          )
+        );
+        saveChatToStorage();
+      }
       document.getElementById("chatText").value = "";
       hideChatErr();
       renderChatMessages();
     });
 
     document.getElementById("btnChatClear").addEventListener("click", () => {
+      if (useSharedReports) return;
       if (!confirm(I18N[lang].chatClearConfirm)) return;
       rainChatMessages = [];
       saveChatToStorage();
@@ -2484,17 +2630,41 @@
       renderStations();
     }
 
+    if (!isFirebaseChatConfigured()) {
+      loadChatFromStorage();
+    }
+
     applyLang();
     loadBoundaries();
     loadRainViewer();
     fetchAndRenderStations();
     loadForecast();
 
+    if (isFirebaseChatConfigured()) {
+      initFirebaseChat()
+        .then(() => {
+          applyLang();
+          renderChatMessages();
+        })
+        .catch((e) => {
+          console.warn(e);
+          useSharedReports = false;
+          loadChatFromStorage();
+          migrateChatExpires();
+          applyLang();
+          renderChatMessages();
+        });
+    }
+
     setInterval(() => {
       if (anyObsToggle()) fetchAndRenderStations();
     }, 10 * 60 * 1000);
 
     setInterval(() => {
+      if (useSharedReports) {
+        renderChatMessages();
+        return;
+      }
       const n = rainChatMessages.length;
       pruneExpiredChat();
       if (rainChatMessages.length !== n) renderChatMessages();
