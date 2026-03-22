@@ -1,240 +1,1828 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحميل من السوشيال ميديا</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>مراقبة الطقس — الإمارات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root {
+      --bg: #070a0f;
+      --panel: #0f141c;
+      --panel-2: #151c27;
+      --panel-elev: rgba(20, 28, 40, 0.92);
+      --border: rgba(255, 255, 255, 0.07);
+      --text: #e8eef7;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --accent-dim: rgba(14, 165, 233, 0.16);
+      --accent-glow: rgba(56, 189, 248, 0.35);
+      --switch-on: linear-gradient(135deg, #0e7490 0%, #0891b2 55%, #06b6d4 100%);
+      --on: #34d399;
+      --danger: #f87171;
+    }
 
-        body {
-            background-color: #f0f2f5;
-            direction: rtl;
-            text-align: center;
-            padding: 20px;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "Tajawal", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+    .app {
+      display: flex;
+      height: 100%;
+      flex-direction: row;
+    }
 
-        h1 {
-            color: #1a1a1a;
-            margin-bottom: 20px;
-        }
+    html[dir="ltr"] .app { flex-direction: row-reverse; }
 
-        .download-box {
-            padding: 20px;
-        }
+    .sidebar {
+      width: min(100%, 328px);
+      flex-shrink: 0;
+      background: linear-gradient(175deg, #101722 0%, #0a0e14 42%, #080c11 100%);
+      border-inline-start: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 1200;
+      box-shadow: -12px 0 40px rgba(0, 0, 0, 0.45);
+    }
 
-        #url-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 16px;
-        }
+    html[dir="ltr"] .sidebar {
+      border-inline-start: none;
+      border-inline-end: 1px solid var(--border);
+      box-shadow: 8px 0 32px rgba(0, 0, 0, 0.35);
+    }
 
-        .download-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-        }
+    .sb-head {
+      padding: 1rem 1rem 1.05rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.5) 0%, transparent 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+    }
 
-        .download-btn:hover {
-            background-color: #45a049;
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
 
-        .platforms {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #0ea5e9 0%, #2563eb 48%, #6366f1 100%);
+      box-shadow: 0 4px 16px var(--accent-glow);
+      display: grid;
+      place-items: center;
+      font-size: 1.35rem;
+    }
 
-        .platform-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
+    .brand h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
 
-        .platform-icon:hover {
-            transform: translateY(-5px);
-        }
+    .brand span {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
 
-        .platform-icon img {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 10px;
-        }
+    .btn-lang {
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 0.42rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel-elev);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
 
-        .platform-icon span {
-            font-size: 14px;
-            color: #666;
-        }
+    .btn-lang:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(14, 165, 233, 0.1);
+      color: #f0f9ff;
+    }
 
-        .result-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            display: none;
-        }
+    .sb-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0.85rem 0.8rem 1.35rem;
+      scrollbar-gutter: stable;
+    }
 
-        .result-container.active {
-            display: block;
-        }
+    .sb-scroll::-webkit-scrollbar {
+      width: 7px;
+    }
 
-        .download-result {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
+    .sb-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
-        .download-link {
-            display: block;
-            background: #4CAF50;
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            margin-top: 10px;
-        }
+    .sb-scroll::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.22);
+      border-radius: 99px;
+    }
 
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding: 20px;
-            color: #666;
-        }
-    </style>
+    .sb-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.35);
+    }
+
+    .section {
+      margin-bottom: 0.85rem;
+      padding: 0.85rem 0.9rem;
+      background: rgba(12, 17, 26, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.055);
+      border-radius: 14px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.22);
+    }
+
+    .section-title {
+      font-size: 0.69rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #7dd3fc;
+      margin-bottom: 0.7rem;
+      padding-bottom: 0.55rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .obs-note {
+      font-size: 0.74rem;
+      font-weight: 500;
+      line-height: 1.45;
+      color: var(--muted);
+      margin: -0.15rem 0 0.65rem;
+    }
+
+    .row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.85rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+      font-size: 0.89rem;
+      line-height: 1.35;
+      cursor: pointer;
+    }
+
+    .row:last-child { border-bottom: none; padding-bottom: 0.15rem; }
+    .row:first-of-type { padding-top: 0.1rem; }
+
+    .row small {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.22rem;
+      line-height: 1.4;
+    }
+
+    .row.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .forecast-note {
+      font-size: 0.73rem;
+      color: var(--muted);
+      margin-bottom: 0.55rem;
+      line-height: 1.45;
+    }
+
+    .forecast-select {
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.83rem;
+      padding: 0.5rem 0.65rem;
+      margin-bottom: 0.6rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .forecast-select:hover,
+    .forecast-select:focus {
+      border-color: rgba(56, 189, 248, 0.4);
+      outline: none;
+    }
+
+    .forecast-loading,
+    .forecast-error {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 0.35rem 0;
+    }
+
+    .forecast-error { color: #f87171; }
+
+    .forecast-sub {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0.65rem 0 0.35rem;
+    }
+
+    .forecast-table-head,
+    .forecast-row {
+      display: grid;
+      grid-template-columns: 1fr 52px 48px;
+      gap: 0.4rem;
+      align-items: center;
+      font-size: 0.78rem;
+      padding: 0.4rem 0.45rem;
+      border-radius: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .forecast-table-head {
+      color: #94a3b8;
+      font-weight: 700;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .forecast-row:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .forecast-hourly {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      max-height: 160px;
+      overflow-y: auto;
+      margin-top: 0.25rem;
+    }
+
+    .forecast-hour-cell {
+      background: rgba(8, 12, 20, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: 0.66rem;
+      line-height: 1.35;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .fh-time { color: var(--muted); font-weight: 600; }
+    .fh-pop { color: #5eead4; font-weight: 700; }
+    .fh-mm { color: var(--text); }
+
+    .forecast-muted {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0.25rem 0;
+    }
+
+    .switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #1e293b;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 4px;
+      top: 50%;
+      margin-top: -9px;
+      background: #f1f5f9;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+      transition: transform 0.22s ease, background 0.2s;
+    }
+
+    html[dir="ltr"] .slider::before { left: auto; right: 4px; }
+
+    .switch input:checked + .slider {
+      background: var(--switch-on);
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 0 0 1px rgba(8, 145, 178, 0.25);
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(-20px);
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+    }
+
+    html[dir="ltr"] .switch input:checked + .slider::before { transform: translateX(20px); }
+
+    .switch input:disabled + .slider {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .sb-foot {
+      padding: 0.75rem 1rem 0.85rem;
+      font-size: 0.68rem;
+      color: #7c8c9f;
+      border-top: 1px solid var(--border);
+      line-height: 1.55;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .sb-foot a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .sb-foot a:hover {
+      color: #7dd3fc;
+      border-bottom-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .map-shell {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+      direction: ltr;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      /* لون الماء أثناء التحميل — يطابق preset الداكن */
+      background: #1a1f26;
+      touch-action: none;
+      transition: background 0.25s ease;
+    }
+
+    /*
+      ألوان قريبة من مرجع الرادار الاحترافي:
+      أرض ~#3c4758، ماء ~#1a1f26، حدود ساحلية رمادية هادئة
+      (المرشّح يُطبَّق فقط على طبقة baseMap وليس على الرادار)
+    */
+    #map.leaflet-container.base-dark {
+      background: #1a1f26;
+    }
+
+    #map.leaflet-container.base-gray {
+      background: #232a36;
+    }
+
+    #map.leaflet-container.base-light {
+      background: #2c3544;
+    }
+
+    #map.leaflet-container.base-sat {
+      background: #0c1016;
+    }
+
+    .leaflet-baseMap-pane img.leaflet-tile {
+      transition: filter 0.2s ease;
+    }
+
+    .leaflet-container.base-dark .leaflet-baseMap-pane img.leaflet-tile {
+      filter: brightness(0.9) contrast(1.09) saturate(0.4) hue-rotate(8deg);
+    }
+
+    .leaflet-container.base-gray .leaflet-baseMap-pane img.leaflet-tile {
+      filter: brightness(0.4) contrast(1.08) saturate(0.36) hue-rotate(6deg);
+    }
+
+    .leaflet-container.base-light .leaflet-baseMap-pane img.leaflet-tile {
+      filter: brightness(0.78) contrast(1.05) saturate(0.55) hue-rotate(4deg);
+    }
+
+    .leaflet-container.base-sat .leaflet-baseMap-pane img.leaflet-tile {
+      filter: brightness(0.97) contrast(1.06) saturate(0.88);
+    }
+
+    /* تحريك الخريطة بالفأرة: يد واضحة أثناء السحب (Leaflet يضيف leaflet-grab أيضاً) */
+    .leaflet-container {
+      cursor: grab;
+    }
+
+    .leaflet-container.leaflet-dragging {
+      cursor: grabbing;
+    }
+
+    .map-toolbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    html[dir="rtl"] .map-toolbar { left: auto; right: 12px; }
+
+    .tool-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(18, 24, 31, 0.92);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1rem;
+      display: grid;
+      place-items: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .tool-btn:hover { border-color: rgba(56, 189, 248, 0.4); }
+
+    .map-style-wrap {
+      position: absolute;
+      bottom: 118px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .map-style-btns {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 10px;
+      pointer-events: auto;
+      margin-bottom: 6px;
+    }
+
+    .map-style-btn {
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 50%;
+      line-height: 0;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .map-style-btn:hover {
+      transform: scale(1.06);
+    }
+
+    .map-style-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .map-style-btn .map-style-thumb {
+      display: block;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      background-size: cover;
+      background-position: center;
+    }
+
+    .map-style-btn.active .map-style-thumb {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4);
+    }
+
+    .thumb-gray {
+      background: linear-gradient(145deg, #6b7280 0%, #374151 40%, #9ca3af 100%);
+    }
+
+    .thumb-light {
+      background: linear-gradient(180deg, #e8dcc8 0%, #e8dcc8 48%, #3d7ab8 48%, #2c5282 100%);
+    }
+
+    .thumb-sat {
+      background: linear-gradient(180deg, #c4a574 0%, #8b7355 35%, #1e4d6b 35%, #0f2942 100%);
+    }
+
+    .thumb-dark {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 50%, #020617 100%);
+    }
+
+    .map-style-caption {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(232, 238, 247, 0.92);
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85);
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      .map-style-wrap { bottom: 108px; }
+      .map-style-btn .map-style-thumb {
+        width: 40px;
+        height: 40px;
+      }
+      .map-style-btns { gap: 8px; }
+    }
+
+    .timeline-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 10px 12px 14px;
+      background: linear-gradient(0deg, rgba(10, 14, 20, 0.95) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .timeline-inner {
+      pointer-events: auto;
+      max-width: 720px;
+      margin: 0 auto;
+      background: rgba(18, 24, 31, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .time-label {
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+
+    .time-label strong { color: var(--text); }
+
+    .time-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .radar-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .radar-legend[hidden] { display: none !important; }
+
+    .radar-legend .bar {
+      display: flex;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      min-width: 120px;
+      flex: 1;
+      max-width: 220px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .radar-legend .bar span {
+      flex: 1;
+    }
+
+    .radar-legend .c1 { background: linear-gradient(90deg, #00ff00, #00e000); }
+    .radar-legend .c2 { background: linear-gradient(90deg, #ffff00, #ffd000); }
+    .radar-legend .c3 { background: linear-gradient(90deg, #ff9900, #ff6600); }
+    .radar-legend .c4 { background: linear-gradient(90deg, #ff0000, #cc0000); }
+    .radar-legend .c5 { background: linear-gradient(90deg, #00a854, #00e676); }
+
+    .boundaries-pane path {
+      pointer-events: none;
+    }
+
+    .play-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .play-group button {
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .play-group button.active {
+      background: var(--accent-dim);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #e0f2fe;
+    }
+
+    input[type="range"].timeline {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #2a3441;
+      border-radius: 999px;
+    }
+
+    input[type="range"].timeline::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #38bdf8, #0ea5e9);
+      cursor: pointer;
+      border: 2px solid #0a0e14;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    input[type="range"].timeline::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #38bdf8, #0ea5e9);
+      cursor: pointer;
+      border: 2px solid #0a0e14;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(18, 24, 31, 0.75) !important;
+      color: #8899aa !important;
+      font-size: 10px !important;
+      max-width: 50%;
+    }
+
+    .leaflet-control-attribution a { color: #9ecfff !important; }
+
+    .radar-tiles-pane img.leaflet-tile {
+      filter: saturate(1.28) contrast(1.14) brightness(1.04);
+      image-rendering: auto;
+    }
+
+    .station-marker-wrap {
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .station-pin {
+      position: relative;
+      transform: translate(-50%, -100%);
+      margin-bottom: 6px;
+      background: rgba(12, 16, 22, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      line-height: 1.35;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .station-pin .n { color: #93c5fd; }
+    .station-pin .w { color: #a5b4fc; }
+
+    .mobile-toggle {
+      display: none;
+      position: absolute;
+      top: 12px;
+      z-index: 1300;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.92);
+      color: var(--text);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .mobile-toggle:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    html[dir="rtl"] .mobile-toggle { right: 12px; left: auto; }
+    html[dir="ltr"] .mobile-toggle { left: 12px; right: auto; }
+
+    @media (max-width: 900px) {
+      .mobile-toggle { display: block; }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: min(92vw, 300px);
+        transform: translateX(100%);
+        transition: transform 0.25s ease;
+      }
+      html[dir="ltr"] .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      html[dir="ltr"] .sidebar.open { transform: translateX(0); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>تحميل الوسائط من مواقع التواصل</h1>
-        
-        <div class="download-box">
-            <input type="text" id="url-input" placeholder="ضع رابط الفيديو هنا...">
-            <button onclick="handleDownload()" class="download-btn">تحميل</button>
+  <button type="button" class="mobile-toggle" id="btnMenu" aria-expanded="false">القائمة</button>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-head">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">🌦️</div>
+          <div>
+            <h1 id="tBrandTitle">مراقبة الطقس</h1>
+            <span id="tBrandSub">الإمارات والخليج</span>
+          </div>
+        </div>
+        <button type="button" class="btn-lang" id="btnLang">English</button>
+      </div>
+
+      <div class="sb-scroll">
+        <div class="section">
+          <div class="section-title" id="tSecRadar">شبكة الرادار</div>
+          <label class="row">
+            <div>
+              <span id="tRadarPrecip">رادار هطول الأمطار</span>
+              <small id="tRadarPrecipHint">طبقة عالمية (RainViewer)</small>
+            </div>
+            <span class="switch"><input type="checkbox" id="togRadar" checked /><span class="slider"></span></span>
+          </label>
+          <label class="row">
+            <div>
+              <span id="tRadarGcc">تكبير على الإمارات فقط</span>
+              <small id="tRadarGccHint">عطّل لعرض دول الخليج معاً على الخريطة</small>
+            </div>
+            <span class="switch"><input type="checkbox" id="togGccView" /><span class="slider"></span></span>
+          </label>
+          <label class="row">
+            <div>
+              <span id="tBorders">حدود الدول (رمادي)</span>
+              <small id="tBordersHint">مجلس التعاون — Natural Earth</small>
+            </div>
+            <span class="switch"><input type="checkbox" id="togBorders" checked /><span class="slider"></span></span>
+          </label>
+          <div class="row disabled" title="">
+            <div>
+              <span id="tLightning">البرق والصواعق</span>
+              <small id="tDemo">غير متاح في النسخة التجريبية</small>
+            </div>
+            <span class="switch"><input type="checkbox" disabled /><span class="slider"></span></span>
+          </div>
         </div>
 
-        <div class="platforms">
-            <div class="platform-icon">
-                <img src="https://cdn-icons-png.flaticon.com/512/3938/3938026.png" alt="يوتيوب">
-                <span>يوتيوب</span>
+        <div class="section">
+          <div class="section-title" id="tSecSat">الأقمار الاصطناعية</div>
+          <label class="row" id="rowSat">
+            <div>
+              <span id="tSatIr">أشعة تحت الحمراء</span>
+              <small id="tSatHint">يعتمد على توفر RainViewer</small>
             </div>
-            <div class="platform-icon">
-                <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/7c/49/e1/7c49e1af-ce92-d1c4-9a93-0a316e47ba94/AppIcon_TikTok-0-0-1x_U007epad-0-1-0-0-85-220.png/1200x630wa.png" alt="تيك توك">
-                <span>تيك توك</span>
-            </div>
-            <div class="platform-icon">
-                <img src="https://cdn-icons-png.flaticon.com/512/3938/3938036.png" alt="انستغرام">
-                <span>انستغرام</span>
-            </div>
-            <div class="platform-icon">
-                <img src="https://cdn-icons-png.flaticon.com/512/3256/3256013.png" alt="تويتر">
-                <span>تويتر</span>
-            </div>
-            <div class="platform-icon">
-                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="تيليجرام">
-                <span>تيليجرام</span>
-            </div>
+            <span class="switch"><input type="checkbox" id="togSat" /><span class="slider"></span></span>
+          </label>
         </div>
 
-        <div id="result" class="result-container"></div>
-        
-        <div class="footer">
-            <p>جميع الحقوق محفوظة  الزعابي اختصار الدس uuuu© 2025</p>
+        <div class="section">
+          <div class="section-title" id="tSecObs">رصدات محطات الطقس</div>
+          <p class="obs-note" id="tObsNote">
+            نقاط تقديرية لمدن إماراتية (Open-Meteo)
+          </p>
+          <label class="row">
+            <span id="tTemp">درجة الحرارة °م</span>
+            <span class="switch"><input type="checkbox" id="togTemp" checked /><span class="slider"></span></span>
+          </label>
+          <label class="row">
+            <span id="tWind">سرعة واتجاه الرياح</span>
+            <span class="switch"><input type="checkbox" id="togWind" checked /><span class="slider"></span></span>
+          </label>
+          <label class="row">
+            <span id="tHum">الرطوبة النسبية %</span>
+            <span class="switch"><input type="checkbox" id="togHum" /><span class="slider"></span></span>
+          </label>
+          <label class="row">
+            <span id="tPress">الضغط الجوي hPa</span>
+            <span class="switch"><input type="checkbox" id="togPress" /><span class="slider"></span></span>
+          </label>
+          <label class="row">
+            <span id="tDew">نقطة الندى °م</span>
+            <span class="switch"><input type="checkbox" id="togDew" /><span class="slider"></span></span>
+          </label>
         </div>
-    </div>
 
-    <script>
-        async function handleDownload() {
-            const urlInput = document.getElementById('url-input');
-            const resultDiv = document.getElementById('result');
-            const url = urlInput.value.trim();
+        <div class="section">
+          <div class="section-title" id="tSecForecast">توقعات الأمطار</div>
+          <p class="forecast-note" id="tForecastNote">حسب المدينة — احتمال الهطول والكمية (ملم) · أيقونة اليوم من رمز WMO · Open-Meteo</p>
+          <select id="forecastCity" class="forecast-select" aria-label="المدينة"></select>
+          <p class="forecast-loading" id="forecastLoading">جاري التحميل…</p>
+          <p class="forecast-error" id="forecastError" hidden></p>
+          <div id="forecastContent" hidden></div>
+        </div>
+      </div>
 
-            if (!url) {
-                showError('⚠️ الرجاء إدخال رابط صحيح');
-                return;
-            }
+      <div class="sb-foot">
+        <span id="tFoot">OSM / CARTO / Esri · حدود Natural Earth 50m · رادار RainViewer · Open-Meteo</span>
+        · <a href="simple.html" id="linkSimple">عرض مبسّط</a>
+      </div>
+    </aside>
 
-            try {
-                resultDiv.innerHTML = '<div class="loading">⏳ جاري التحميل...</div>';
-                resultDiv.style.display = 'block';
+    <main class="map-shell">
+      <div id="map" role="application" aria-label="خريطة الطقس"></div>
+      <div class="map-toolbar">
+        <button type="button" class="tool-btn" id="btnZoomIn" title="تكبير الخريطة" aria-label="تكبير الخريطة">+</button>
+        <button type="button" class="tool-btn" id="btnZoomOut" title="تصغير الخريطة" aria-label="تصغير الخريطة">−</button>
+        <button type="button" class="tool-btn" id="btnFs" title="ملء الشاشة" aria-label="ملء الشاشة">⛶</button>
+      </div>
+      <div class="map-style-wrap" id="mapStyleWrap">
+        <div class="map-style-btns" role="radiogroup" aria-label="تغيير شكل الخريطة" dir="ltr">
+          <button type="button" class="map-style-btn" data-style="gray" aria-checked="false" role="radio">
+            <span class="map-style-thumb thumb-gray" title=""></span>
+          </button>
+          <button type="button" class="map-style-btn" data-style="light" aria-checked="false" role="radio">
+            <span class="map-style-thumb thumb-light" title=""></span>
+          </button>
+          <button type="button" class="map-style-btn" data-style="sat" aria-checked="false" role="radio">
+            <span class="map-style-thumb thumb-sat" title=""></span>
+          </button>
+          <button type="button" class="map-style-btn active" data-style="dark" aria-checked="true" role="radio">
+            <span class="map-style-thumb thumb-dark" title=""></span>
+          </button>
+        </div>
+        <div class="map-style-caption" id="tMapStyleLabel">تغيير شكل الخريطة</div>
+      </div>
+      <div class="timeline-wrap" id="timelineWrap">
+        <div class="timeline-inner">
+          <div class="time-label" id="timeLabel"><strong>—</strong></div>
+          <div class="time-controls">
+            <div class="play-group">
+              <button type="button" id="btnPlay">▶</button>
+              <button type="button" id="sp1" class="speed active">1×</button>
+              <button type="button" id="sp2" class="speed">2×</button>
+            </div>
+            <input type="range" class="timeline" id="timeSlider" min="0" max="0" value="0" />
+          </div>
+          <div class="radar-legend" id="radarLegend" hidden>
+            <span id="legLight">خفيف</span>
+            <div class="bar" aria-hidden="true">
+              <span class="c1"></span><span class="c2"></span><span class="c3"></span><span class="c4"></span><span class="c5"></span>
+            </div>
+            <span id="legHeavy">شديد جداً</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 
-                const platform = detectPlatform(url);
-                let downloadInfo;
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    const I18N = {
+      ar: {
+        menu: "القائمة",
+        brandTitle: "مراقبة الطقس",
+        brandSub: "دول الخليج فقط على الخريطة",
+        secRadar: "شبكة الرادار",
+        radarPrecip: "رادار هطول الأمطار",
+        radarPrecipHint: "تدرج أخضر للمطر الخفيف (مخطط 4) — تنعيم البلاط",
+        radarGcc: "تكبير على الإمارات فقط",
+        radarGccHint: "عطّل لعرض دول الخليج معاً على الخريطة",
+        legLight: "مطر خفيف",
+        legHeavy: "شديد جداً",
+        borders: "حدود الدول (رمادي)",
+        bordersHint: "دول مجلس التعاون — Natural Earth",
+        lightning: "البرق والصواعق",
+        demo: "غير متاح في النسخة التجريبية",
+        secSat: "الأقمار الاصطناعية",
+        satIr: "أشعة تحت الحمراء",
+        satHint: "يعتمد على توفر RainViewer",
+        secObs: "رصدات محطات الطقس",
+        obsNote: "نقاط تقديرية لمدن إماراتية (Open-Meteo)",
+        temp: "درجة الحرارة °م",
+        wind: "سرعة واتجاه الرياح",
+        hum: "الرطوبة النسبية %",
+        press: "الضغط الجوي hPa",
+        dew: "نقطة الندى °م",
+        foot: "OSM / CARTO / Esri · حدود Natural Earth 50m · رادار RainViewer · Open-Meteo",
+        simple: "عرض مبسّط",
+        mapStyleLabel: "تغيير شكل الخريطة",
+        mapStyleGray: "خريطة رمادية",
+        mapStyleLight: "خريطة فاتحة",
+        mapStyleSat: "صور قمر صناعي",
+        mapStyleDark: "خريطة ليلية داكنة",
+        timeNone: "لا توجد إطارات رادار",
+        timeFrame: "إطار الرادار",
+        langBtn: "English",
+        play: "▶",
+        pause: "⏸",
+        secForecast: "توقعات الأمطار",
+        forecastNote: "حسب المدينة — احتمال الهطول والكمية (ملم) · أيقونة اليوم من رمز WMO · Open-Meteo",
+        forecastDailyTitle: "الأيام القادمة",
+        forecastHourlyTitle: "الساعات القادمة (24)",
+        forecastDay: "اليوم",
+        forecastPop: "احتمال",
+        forecastMm: "ملم",
+        forecastLoading: "جاري تحميل التوقعات…",
+        forecastErr: "تعذر تحميل التوقعات. تحقق من الاتصال.",
+        zoomInTitle: "تكبير الخريطة",
+        zoomOutTitle: "تصغير الخريطة",
+        fullscreenTitle: "ملء الشاشة أو الخروج",
+      },
+      en: {
+        menu: "Menu",
+        brandTitle: "Weather Monitor",
+        brandSub: "Gulf states only",
+        secRadar: "Radar network",
+        radarPrecip: "Precipitation radar",
+        radarPrecipHint: "Green-style rain scale (scheme 4), smoothed tiles",
+        radarGcc: "Zoom to UAE only",
+        radarGccHint: "Off to show all Gulf countries",
+        legLight: "Light rain",
+        legHeavy: "Very heavy",
+        borders: "Country borders (gray)",
+        bordersHint: "GCC states — Natural Earth",
+        lightning: "Lightning",
+        demo: "Not in this demo",
+        secSat: "Satellites",
+        satIr: "Infrared",
+        satHint: "When RainViewer provides tiles",
+        secObs: "Station-style readings",
+        obsNote: "City estimates via Open-Meteo",
+        temp: "Temperature °C",
+        wind: "Wind speed & direction",
+        hum: "Relative humidity %",
+        press: "Surface pressure hPa",
+        dew: "Dew point °C",
+        foot: "OSM / CARTO / Esri · Natural Earth 50m borders · RainViewer · Open-Meteo",
+        simple: "Simple view",
+        mapStyleLabel: "Change map style",
+        mapStyleGray: "Gray map",
+        mapStyleLight: "Light map",
+        mapStyleSat: "Satellite imagery",
+        mapStyleDark: "Dark map",
+        timeNone: "No radar frames loaded",
+        timeFrame: "Radar frame",
+        langBtn: "العربية",
+        play: "▶",
+        pause: "⏸",
+        secForecast: "Rain forecast",
+        forecastNote: "By city — PoP & amount (mm) · daily icon from WMO code · Open-Meteo",
+        forecastDailyTitle: "Next days",
+        forecastHourlyTitle: "Next 24 hours",
+        forecastDay: "Day",
+        forecastPop: "PoP",
+        forecastMm: "mm",
+        forecastLoading: "Loading forecast…",
+        forecastErr: "Could not load forecast. Check your connection.",
+        zoomInTitle: "Zoom in",
+        zoomOutTitle: "Zoom out",
+        fullscreenTitle: "Fullscreen / exit",
+      },
+    };
 
-                switch (platform) {
-                    case 'tiktok': downloadInfo = await downloadTikTok(url); break;
-                    case 'instagram': downloadInfo = await downloadInstagram(url); break;
-                    case 'twitter': downloadInfo = await downloadTwitter(url); break;
-                    case 'youtube': downloadInfo = await downloadYoutube(url); break;
-                    case 'telegram': downloadInfo = await downloadTelegram(url); break;
-                    default: throw new Error('❌ منصة غير مدعومة');
-                }
+    let lang = "ar";
+    let forecastData = null;
 
-                showResult(downloadInfo);
-            } catch (error) {
-                showError(error.message);
-            }
+    function applyLang() {
+      const L = I18N[lang];
+      const d = lang === "ar" ? "rtl" : "ltr";
+      document.documentElement.lang = lang;
+      document.documentElement.dir = d;
+      document.getElementById("btnMenu").textContent = L.menu;
+      document.getElementById("tBrandTitle").textContent = L.brandTitle;
+      document.getElementById("tBrandSub").textContent = L.brandSub;
+      document.getElementById("btnLang").textContent = L.langBtn;
+      document.getElementById("tSecRadar").textContent = L.secRadar;
+      document.getElementById("tRadarPrecip").textContent = L.radarPrecip;
+      document.getElementById("tRadarPrecipHint").textContent = L.radarPrecipHint;
+      document.getElementById("tRadarGcc").textContent = L.radarGcc;
+      document.getElementById("tRadarGccHint").textContent = L.radarGccHint;
+      document.getElementById("tBorders").textContent = L.borders;
+      document.getElementById("tBordersHint").textContent = L.bordersHint;
+      document.getElementById("tLightning").textContent = L.lightning;
+      document.getElementById("tDemo").textContent = L.demo;
+      document.getElementById("tSecSat").textContent = L.secSat;
+      document.getElementById("tSatIr").textContent = L.satIr;
+      document.getElementById("tSatHint").textContent = L.satHint;
+      document.getElementById("tSecObs").textContent = L.secObs;
+      document.getElementById("tObsNote").textContent = L.obsNote;
+      document.getElementById("tTemp").textContent = L.temp;
+      document.getElementById("tWind").textContent = L.wind;
+      document.getElementById("tHum").textContent = L.hum;
+      document.getElementById("tPress").textContent = L.press;
+      document.getElementById("tDew").textContent = L.dew;
+      document.getElementById("tFoot").textContent = L.foot;
+      document.getElementById("linkSimple").textContent = L.simple;
+      document.getElementById("legLight").textContent = L.legLight;
+      document.getElementById("legHeavy").textContent = L.legHeavy;
+      document.getElementById("tMapStyleLabel").textContent = L.mapStyleLabel;
+      const zi = document.getElementById("btnZoomIn");
+      const zo = document.getElementById("btnZoomOut");
+      const bf = document.getElementById("btnFs");
+      if (zi) {
+        zi.title = L.zoomInTitle;
+        zi.setAttribute("aria-label", L.zoomInTitle);
+      }
+      if (zo) {
+        zo.title = L.zoomOutTitle;
+        zo.setAttribute("aria-label", L.zoomOutTitle);
+      }
+      if (bf) {
+        bf.title = L.fullscreenTitle;
+        bf.setAttribute("aria-label", L.fullscreenTitle);
+      }
+      const rg = document.querySelector(".map-style-btns");
+      if (rg) rg.setAttribute("aria-label", L.mapStyleLabel);
+      const tip = {
+        gray: L.mapStyleGray,
+        light: L.mapStyleLight,
+        sat: L.mapStyleSat,
+        dark: L.mapStyleDark,
+      };
+      document.querySelectorAll(".map-style-btn").forEach((btn) => {
+        const id = btn.getAttribute("data-style");
+        const t = tip[id] || "";
+        btn.title = t;
+        const th = btn.querySelector(".map-style-thumb");
+        if (th) th.setAttribute("title", t);
+      });
+      document.getElementById("btnPlay").textContent = playing ? L.pause : L.play;
+      document.getElementById("tSecForecast").textContent = L.secForecast;
+      document.getElementById("tForecastNote").textContent = L.forecastNote;
+      const fl = document.getElementById("forecastLoading");
+      if (fl && !forecastData) fl.textContent = L.forecastLoading;
+      fillForecastCitySelect();
+      updateTimeLabel();
+      setRadarLegendVisible(els.togRadar.checked);
+      renderStations();
+      if (forecastData) renderForecast();
+    }
+
+    /** إحداثيات مرجعية (مراكز مدنية تقريبية، ~±5 أرقام عشرية) */
+    const UAE_CITIES = [
+      { name: "دبي", nameEn: "Dubai", lat: 25.2697, lon: 55.3095 },
+      { name: "أبوظبي", nameEn: "Abu Dhabi", lat: 24.4539, lon: 54.3773 },
+      { name: "الشارقة", nameEn: "Sharjah", lat: 25.3573, lon: 55.4033 },
+      { name: "العين", nameEn: "Al Ain", lat: 24.2075, lon: 55.7447 },
+      { name: "رأس الخيمة", nameEn: "Ras Al Khaimah", lat: 25.8007, lon: 55.9762 },
+      { name: "الفجيرة", nameEn: "Fujairah", lat: 25.1214, lon: 56.3486 },
+    ];
+
+    /** رمز WMO (Open-Meteo) → أيقونة — WMO 4677 */
+    function wmoWeatherEmoji(code) {
+      const c = code == null || Number.isNaN(Number(code)) ? -1 : Number(code);
+      if (c === 0) return "☀️";
+      if (c >= 1 && c <= 3) return "⛅";
+      if (c >= 45 && c <= 48) return "🌫️";
+      if (c >= 51 && c <= 55) return "🌦️";
+      if (c >= 56 && c <= 57) return "🌨️";
+      if (c >= 61 && c <= 67) return "🌧️";
+      if (c >= 71 && c <= 77) return "❄️";
+      if (c >= 80 && c <= 82) return "🌦️";
+      if (c >= 85 && c <= 86) return "🌨️";
+      if (c >= 95 && c <= 99) return "⛈️";
+      return "🌤️";
+    }
+
+    function fillForecastCitySelect() {
+      const sel = document.getElementById("forecastCity");
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = "";
+      UAE_CITIES.forEach((c, i) => {
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = lang === "ar" ? c.name : c.nameEn;
+        sel.appendChild(opt);
+      });
+      if (prev !== "" && parseInt(prev, 10) < UAE_CITIES.length) sel.value = prev;
+    }
+
+    function getSelectedForecastCity() {
+      const sel = document.getElementById("forecastCity");
+      const i = parseInt(sel?.value ?? "0", 10);
+      return UAE_CITIES[Number.isNaN(i) ? 0 : i] || UAE_CITIES[0];
+    }
+
+    function renderForecast() {
+      const L = I18N[lang];
+      const loading = document.getElementById("forecastLoading");
+      const errEl = document.getElementById("forecastError");
+      const content = document.getElementById("forecastContent");
+      if (!forecastData || !forecastData.daily) {
+        if (loading) loading.hidden = false;
+        return;
+      }
+      if (loading) loading.hidden = true;
+      if (errEl) errEl.hidden = true;
+      if (content) content.hidden = false;
+
+      const d = forecastData.daily;
+      const h = forecastData.hourly;
+      const locale = lang === "ar" ? "ar-AE" : "en-GB";
+
+      let html = '<div class="forecast-sub">' + L.forecastDailyTitle + "</div>";
+      html +=
+        '<div class="forecast-table-head"><span>' +
+        L.forecastDay +
+        "</span><span>" +
+        L.forecastPop +
+        "</span><span>" +
+        L.forecastMm +
+        "</span></div>";
+      for (let i = 0; i < d.time.length; i++) {
+        const date = new Date(d.time[i]);
+        const dayStr = date.toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "numeric" });
+        const pop = d.precipitation_probability_max[i] ?? 0;
+        const mm = d.precipitation_sum[i] ?? 0;
+        const wmo = d.weather_code && d.weather_code[i] != null ? d.weather_code[i] : null;
+        const icon = wmo != null ? wmoWeatherEmoji(wmo) : mm >= 1 ? "🌧️" : mm >= 0.1 ? "🌦️" : pop >= 40 ? "🌧️" : "☀️";
+        html +=
+          '<div class="forecast-row"><span>' +
+          icon +
+          " " +
+          dayStr +
+          "</span><span>" +
+          Math.round(pop) +
+          '%</span><span>' +
+          (mm < 0.1 ? "—" : mm.toFixed(1)) +
+          "</span></div>";
+      }
+
+      html += '<div class="forecast-sub">' + L.forecastHourlyTitle + "</div>";
+      html += '<div class="forecast-hourly">';
+      const now = new Date();
+      let n = 0;
+      if (h && h.time) {
+        for (let i = 0; i < h.time.length && n < 24; i++) {
+          const t = new Date(h.time[i]);
+          if (t < now) continue;
+          const pop = h.precipitation_probability[i] ?? 0;
+          const mm = h.precipitation[i] ?? 0;
+          const hw = h.weather_code && h.weather_code[i] != null ? h.weather_code[i] : null;
+          const hourStr = t.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+          const hIcon = hw != null ? wmoWeatherEmoji(hw) : "";
+          html +=
+            '<div class="forecast-hour-cell"><div class="fh-time">' +
+            hourStr +
+            (hIcon ? " " + hIcon : "") +
+            '</div><div class="fh-pop">' +
+            Math.round(pop) +
+            '%</div><div class="fh-mm">' +
+            (mm < 0.05 ? "—" : mm.toFixed(1)) +
+            "</div></div>";
+          n++;
         }
+      }
+      html += "</div>";
+      if (content) content.innerHTML = html;
+    }
 
-        function detectPlatform(url) {
-            if (url.includes('tiktok.com')) return 'tiktok';
-            if (url.includes('instagram.com')) return 'instagram';
-            if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
-            if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
-            if (url.includes('t.me')) return 'telegram';
-            return 'unknown';
+    async function loadForecast() {
+      const loading = document.getElementById("forecastLoading");
+      const content = document.getElementById("forecastContent");
+      const errEl = document.getElementById("forecastError");
+      const L = I18N[lang];
+      if (loading) {
+        loading.hidden = false;
+        loading.textContent = L.forecastLoading;
+      }
+      if (content) {
+        content.hidden = true;
+        content.innerHTML = "";
+      }
+      if (errEl) errEl.hidden = true;
+      const city = getSelectedForecastCity();
+      try {
+        const params = new URLSearchParams({
+          latitude: city.lat.toFixed(5),
+          longitude: city.lon.toFixed(5),
+          daily: "precipitation_sum,precipitation_probability_max,weather_code",
+          hourly: "precipitation_probability,precipitation,rain,weather_code",
+          forecast_days: "7",
+          timezone: "Asia/Dubai",
+        });
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?" + params);
+        if (!res.ok) throw new Error("forecast");
+        forecastData = await res.json();
+        if (loading) loading.hidden = true;
+        renderForecast();
+      } catch (e) {
+        forecastData = null;
+        if (loading) loading.hidden = true;
+        if (errEl) {
+          errEl.textContent = L.forecastErr;
+          errEl.hidden = false;
         }
+      }
+    }
 
-        function showResult(downloadInfo) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
-                <div class="download-result">
-                    <h3>${downloadInfo.title}</h3>
-                    <a href="${downloadInfo.url}" class="download-link" target="_blank">⬇️ تحميل الملف</a>
-                </div>
-            `;
+    /** تقريب إطار الإمارات (حدود برّية/بحرية مُبسّطة) */
+    const BOUNDS_UAE = [
+      [22.63, 51.0],
+      [26.1, 56.5],
+    ];
+    /** حدود تقريبية لدول الخليج فقط (عُمان، الإمارات، السعودية الشرقية، قطر، البحرين، الكويت) */
+    const BOUNDS_GULF = [
+      [16.45, 46.05],
+      [31.32, 59.78],
+    ];
+
+    const gulfMaxBounds = L.latLngBounds(BOUNDS_GULF[0], BOUNDS_GULF[1]).pad(0.04);
+
+    let map = L.map("map", {
+      zoomControl: false,
+      attributionControl: true,
+      minZoom: 4,
+      maxZoom: 12,
+      maxBounds: gulfMaxBounds,
+      /* أقل قيمة = حرّية أكبر في السحب داخل الحدود */
+      maxBoundsViscosity: 0.72,
+      /* تحريك بالسحب (كل الاتجاهات) — افتراضياً مفعّل، نُبّه صراحةً */
+      dragging: true,
+      inertia: true,
+      inertiaDeceleration: 3000,
+      inertiaMaxSpeed: 1500,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      boxZoom: true,
+      /* أسهم لوحة المفاتيح لتحريك الخريطة */
+      keyboard: true,
+      keyboardPanDelta: 80,
+      touchZoom: true,
+      tap: true,
+    }).fitBounds(BOUNDS_GULF, { padding: [28, 28], maxZoom: 11 });
+
+    const baseMapPane = map.createPane("baseMap");
+    baseMapPane.style.zIndex = "200";
+
+    const radarPane = map.createPane("radarTiles");
+    radarPane.style.zIndex = "450";
+    radarPane.classList.add("radar-tiles-pane");
+
+    const boundariesPane = map.createPane("boundaries");
+    boundariesPane.style.zIndex = "440";
+    boundariesPane.classList.add("boundaries-pane");
+
+    const MAP_STYLES = {
+      gray: {
+        url: "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        opts: {
+          attribution:
+            'Tiles &copy; <a href="https://www.esri.com/">Esri</a> (Light Gray)',
+          maxZoom: 16,
+        },
+      },
+      light: {
+        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        opts: {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+          subdomains: "abcd",
+          maxZoom: 20,
+        },
+      },
+      sat: {
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        opts: {
+          attribution:
+            'Tiles &copy; <a href="https://www.esri.com/">Esri</a> (World Imagery)',
+          maxZoom: 19,
+        },
+      },
+      dark: {
+        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        opts: {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+          subdomains: "abcd",
+          maxZoom: 19,
+        },
+      },
+    };
+
+    let baseLayer = null;
+
+    function setBaseStyle(id) {
+      const def = MAP_STYLES[id];
+      if (!def || !map) return;
+      if (baseLayer) map.removeLayer(baseLayer);
+      const mc = map.getContainer();
+      mc.classList.remove("base-gray", "base-light", "base-sat", "base-dark");
+      mc.classList.add("base-" + id);
+      baseLayer = L.tileLayer(def.url, { ...def.opts, pane: "baseMap" }).addTo(map);
+      document.querySelectorAll(".map-style-btn").forEach((btn) => {
+        const on = btn.getAttribute("data-style") === id;
+        btn.classList.toggle("active", on);
+        btn.setAttribute("aria-checked", on ? "true" : "false");
+      });
+    }
+
+    setBaseStyle("dark");
+
+    document.querySelector(".map-style-btns").addEventListener("click", (e) => {
+      const btn = e.target.closest(".map-style-btn");
+      if (!btn) return;
+      setBaseStyle(btn.getAttribute("data-style"));
+    });
+
+    let radarHost = "https://tilecache.rainviewer.com";
+    let radarFrames = [];
+    let satFrames = [];
+    /** RainViewer: color=4 تدرج أخضر/أصفر/أحمر؛ 1_1 = تنعيم البلاط (أقل بكسلية من 0_0) */
+    const RV_RADAR = { size: 512, color: 4, opt: "1_1" };
+
+    /** RainViewer يوفّر بلاطات حتى zoom 7 فقط؛ بدون maxNativeZoom يظهر «Zoom Level Not Supported» */
+    const RV_MAX_NATIVE_ZOOM = 7;
+
+    let radarLayer = L.tileLayer("", {
+      pane: "radarTiles",
+      opacity: 0.88,
+      zIndex: 5,
+      maxZoom: 12,
+      maxNativeZoom: RV_MAX_NATIVE_ZOOM,
+      attribution: '<a href="https://www.rainviewer.com/api.html">RainViewer</a>',
+    });
+    let satLayer = L.tileLayer("", {
+      pane: "radarTiles",
+      opacity: 0.65,
+      zIndex: 6,
+      maxZoom: 12,
+      maxNativeZoom: RV_MAX_NATIVE_ZOOM,
+      attribution: '<a href="https://www.rainviewer.com/api.html">RainViewer</a>',
+    });
+
+    let frameIndex = 0;
+    let playing = false;
+    let playTimer = null;
+    let speedMul = 1;
+    let weatherCache = {};
+
+    const els = {
+      togRadar: document.getElementById("togRadar"),
+      togBorders: document.getElementById("togBorders"),
+      togGccView: document.getElementById("togGccView"),
+      togSat: document.getElementById("togSat"),
+      rowSat: document.getElementById("rowSat"),
+      togTemp: document.getElementById("togTemp"),
+      togWind: document.getElementById("togWind"),
+      togHum: document.getElementById("togHum"),
+      togPress: document.getElementById("togPress"),
+      togDew: document.getElementById("togDew"),
+      timeSlider: document.getElementById("timeSlider"),
+      timeLabel: document.getElementById("timeLabel"),
+      btnPlay: document.getElementById("btnPlay"),
+      sp1: document.getElementById("sp1"),
+      sp2: document.getElementById("sp2"),
+      timelineWrap: document.getElementById("timelineWrap"),
+      sidebar: document.getElementById("sidebar"),
+      btnMenu: document.getElementById("btnMenu"),
+    };
+
+    const stationGroup = L.layerGroup().addTo(map);
+    const stationMarkers = [];
+
+    const GCC_ISO = new Set(["ARE", "SAU", "OMN", "QAT", "BHR", "KWT"]);
+    const NE_GEOJSON_URL =
+      "https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_0_countries.geojson";
+
+    let boundaryLayer = null;
+
+    async function loadBoundaries() {
+      if (boundaryLayer) return;
+      try {
+        const res = await fetch(NE_GEOJSON_URL);
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json();
+        const features = (data.features || []).filter((f) => {
+          const p = f.properties || {};
+          const c = p.ISO_A3 || p.ADM0_A3;
+          return GCC_ISO.has(c);
+        });
+        if (!features.length) return;
+        boundaryLayer = L.geoJSON(
+          { type: "FeatureCollection", features },
+          {
+            pane: "boundaries",
+            interactive: false,
+            style: {
+              color: "#7a869a",
+              weight: 2,
+              opacity: 0.88,
+              fillOpacity: 0,
+              lineCap: "round",
+              lineJoin: "round",
+            },
+          }
+        );
+        if (els.togBorders.checked) boundaryLayer.addTo(map);
+        map.on("zoomend", () => {
+          if (!boundaryLayer || !map.hasLayer(boundaryLayer)) return;
+          const z = map.getZoom();
+          const w = z >= 9 ? 2.75 : z >= 7 ? 2.25 : z >= 5 ? 1.85 : 1.4;
+          boundaryLayer.setStyle({ weight: w, color: "#7a869a", opacity: 0.88, fillOpacity: 0 });
+        });
+      } catch (e) {
+        console.warn("loadBoundaries", e);
+      }
+    }
+
+    function setBordersVisible(show) {
+      if (!boundaryLayer) return;
+      if (show) boundaryLayer.addTo(map);
+      else map.removeLayer(boundaryLayer);
+    }
+
+    els.togBorders.addEventListener("change", () => {
+      setBordersVisible(els.togBorders.checked);
+    });
+
+    function windArrow(deg) {
+      if (deg == null || Number.isNaN(deg)) return "—";
+      const blow = (deg + 180) % 360;
+      const arrows = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
+      const i = Math.round(blow / 45) % 8;
+      return arrows[i];
+    }
+
+    function formatTimeDubai(unixSec) {
+      if (!unixSec) return "—";
+      const d = new Date(unixSec * 1000);
+      return d.toLocaleString(lang === "ar" ? "ar-AE" : "en-GB", {
+        timeZone: "Asia/Dubai",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    function setRadarUrl(frame) {
+      if (!frame) return;
+      const url =
+        radarHost +
+        frame.path +
+        `/${RV_RADAR.size}/{z}/{x}/{y}/${RV_RADAR.color}/${RV_RADAR.opt}.png`;
+      if (map.hasLayer(radarLayer)) radarLayer.setUrl(url);
+      else {
+        radarLayer.setUrl(url);
+        radarLayer.addTo(map);
+      }
+    }
+
+    function setSatUrl(frame) {
+      if (!frame) return;
+      const url = radarHost + frame.path + "/256/{z}/{x}/{y}/2/1_1.png";
+      if (map.hasLayer(satLayer)) satLayer.setUrl(url);
+      else {
+        satLayer.setUrl(url);
+        satLayer.addTo(map);
+      }
+    }
+
+    function updateTimeLabel() {
+      const S = I18N[lang];
+      const useRadar = els.togRadar.checked && radarFrames.length;
+      const useSat = els.togSat.checked && satFrames.length;
+      const frames = useRadar ? radarFrames : useSat ? satFrames : [];
+      if (!frames.length) {
+        els.timeLabel.innerHTML = "<strong>" + S.timeNone + "</strong>";
+        return;
+      }
+      const f = frames[Math.min(frameIndex, frames.length - 1)];
+      els.timeLabel.innerHTML =
+        "<strong>" + formatTimeDubai(f.time) + "</strong> · " + (frameIndex + 1) + "/" + frames.length;
+    }
+
+    function applyFrame() {
+      if (els.togRadar.checked && radarFrames.length) {
+        const ri = Math.min(frameIndex, radarFrames.length - 1);
+        setRadarUrl(radarFrames[ri]);
+      }
+      if (els.togSat.checked && satFrames.length) {
+        const si = Math.min(frameIndex, satFrames.length - 1);
+        setSatUrl(satFrames[si]);
+      }
+      let maxI = -1;
+      if (els.togRadar.checked && radarFrames.length)
+        maxI = Math.max(maxI, radarFrames.length - 1);
+      if (els.togSat.checked && satFrames.length)
+        maxI = Math.max(maxI, satFrames.length - 1);
+      if (maxI >= 0) frameIndex = Math.min(frameIndex, maxI);
+      els.timeSlider.value = String(frameIndex);
+      updateTimeLabel();
+    }
+
+    function refreshTimelineVisibility() {
+      const show =
+        (els.togRadar.checked && radarFrames.length > 0) ||
+        (els.togSat.checked && satFrames.length > 0);
+      els.timelineWrap.style.display = show ? "" : "none";
+      const len = Math.max(
+        els.togRadar.checked && radarFrames.length ? radarFrames.length : 0,
+        els.togSat.checked && satFrames.length ? satFrames.length : 0
+      );
+      els.timeSlider.max = String(Math.max(0, len - 1));
+      if (frameIndex > len - 1) frameIndex = Math.max(0, len - 1);
+      els.timeSlider.value = String(frameIndex);
+    }
+
+    async function loadRainViewer() {
+      try {
+        const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+        const j = await res.json();
+        radarHost = j.host || radarHost;
+        radarFrames = [...(j.radar?.past || []), ...(j.radar?.nowcast || [])];
+        satFrames = j.satellite?.infrared || [];
+        if (!satFrames.length) {
+          els.rowSat.classList.add("disabled");
+          els.togSat.disabled = true;
+        } else {
+          els.rowSat.classList.remove("disabled");
+          els.togSat.disabled = false;
         }
-
-        function showError(message) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `<div class="error">${message}</div>`;
-            resultDiv.style.display = 'block';
+        frameIndex = Math.max(0, radarFrames.length - 1);
+        els.timeSlider.max = String(Math.max(0, radarFrames.length - 1));
+        els.timeSlider.value = String(frameIndex);
+        refreshTimelineVisibility();
+        if (els.togRadar.checked) {
+          radarLayer.addTo(map);
+          applyFrame();
         }
+        updateTimeLabel();
+        setRadarLegendVisible(els.togRadar.checked);
+      } catch (e) {
+        console.error(e);
+        els.timeLabel.innerHTML = "<strong style='color:#f87171'>RainViewer</strong>";
+      }
+    }
 
-        async function downloadTikTok(url) { return { title: '🎵 فيديو تيك توك', url: '#' }; }
-        async function downloadInstagram(url) { return { title: '📸 محتوى انستغرام', url: '#' }; }
-        async function downloadTwitter(url) { return { title: '🐦 تغريدة', url: '#' }; }
-        async function downloadYoutube(url) { return { title: '🎬 فيديو يوتيوب', url: '#' }; }
-        async function downloadTelegram(url) { return { title: '✉️ محتوى تيليجرام', url: '#' }; }
-    </script>
+    function stopPlay() {
+      playing = false;
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+      }
+      document.getElementById("btnPlay").textContent = I18N[lang].play;
+    }
+
+    function animFrameCount() {
+      return Math.max(
+        els.togRadar.checked && radarFrames.length ? radarFrames.length : 0,
+        els.togSat.checked && satFrames.length ? satFrames.length : 0
+      );
+    }
+
+    function startPlay() {
+      const n = animFrameCount();
+      if (!n) return;
+      stopPlay();
+      playing = true;
+      document.getElementById("btnPlay").textContent = I18N[lang].pause;
+      const ms = Math.max(200, 650 / speedMul);
+      playTimer = setInterval(() => {
+        frameIndex = (frameIndex + 1) % n;
+        applyFrame();
+      }, ms);
+    }
+
+    els.btnPlay.addEventListener("click", () => {
+      if (playing) stopPlay();
+      else startPlay();
+    });
+
+    els.sp1.addEventListener("click", () => {
+      speedMul = 1;
+      els.sp1.classList.add("active");
+      els.sp2.classList.remove("active");
+      if (playing) {
+        stopPlay();
+        startPlay();
+      }
+    });
+
+    els.sp2.addEventListener("click", () => {
+      speedMul = 2;
+      els.sp2.classList.add("active");
+      els.sp1.classList.remove("active");
+      if (playing) {
+        stopPlay();
+        startPlay();
+      }
+    });
+
+    els.timeSlider.addEventListener("input", () => {
+      stopPlay();
+      frameIndex = parseInt(els.timeSlider.value, 10) || 0;
+      applyFrame();
+    });
+
+    els.togRadar.addEventListener("change", () => {
+      if (els.togRadar.checked) {
+        setRadarLegendVisible(true);
+        if (radarFrames.length) {
+          radarLayer.addTo(map);
+          applyFrame();
+        }
+      } else {
+        setRadarLegendVisible(false);
+        map.removeLayer(radarLayer);
+        stopPlay();
+      }
+      refreshTimelineVisibility();
+      updateTimeLabel();
+    });
+
+    els.togSat.addEventListener("change", () => {
+      if (els.togSat.checked && satFrames.length) {
+        satLayer.addTo(map);
+        applyFrame();
+      } else {
+        map.removeLayer(satLayer);
+      }
+      refreshTimelineVisibility();
+      updateTimeLabel();
+    });
+
+    function setRadarLegendVisible(on) {
+      const leg = document.getElementById("radarLegend");
+      if (leg) leg.hidden = !on;
+    }
+
+    els.togGccView.addEventListener("change", () => {
+      if (els.togGccView.checked) map.fitBounds(BOUNDS_UAE, { padding: [22, 22], maxZoom: 12 });
+      else map.fitBounds(BOUNDS_GULF, { padding: [28, 28], maxZoom: 11 });
+    });
+
+    ["togTemp", "togWind", "togHum", "togPress", "togDew"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", () => {
+        fetchAndRenderStations();
+      });
+    });
+
+    document.getElementById("btnLang").addEventListener("click", () => {
+      lang = lang === "ar" ? "en" : "ar";
+      applyLang();
+    });
+
+    document.getElementById("forecastCity").addEventListener("change", loadForecast);
+
+    document.getElementById("btnZoomIn").addEventListener("click", () => map.zoomIn());
+    document.getElementById("btnZoomOut").addEventListener("click", () => map.zoomOut());
+
+    document.getElementById("btnFs").addEventListener("click", () => {
+      const el = document.querySelector(".map-shell");
+      if (!document.fullscreenElement) el.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    });
+
+    document.getElementById("btnMenu").addEventListener("click", () => {
+      const open = !els.sidebar.classList.contains("open");
+      els.sidebar.classList.toggle("open", open);
+      document.getElementById("btnMenu").setAttribute("aria-expanded", open);
+    });
+
+    map.on("click", () => {
+      if (window.innerWidth <= 900) els.sidebar.classList.remove("open");
+    });
+
+    function anyObsToggle() {
+      return (
+        els.togTemp.checked ||
+        els.togWind.checked ||
+        els.togHum.checked ||
+        els.togPress.checked ||
+        els.togDew.checked
+      );
+    }
+
+    function buildStationHtml(city, cur) {
+      const nm = lang === "ar" ? city.name : city.nameEn;
+      const parts = ['<div class="station-pin"><span class="n">' + nm + "</span>"];
+      if (els.togTemp.checked && cur)
+        parts.push('<br/><span class="w">' + Math.round(cur.temperature_2m) + "°</span>");
+      if (els.togWind.checked && cur) {
+        const w =
+          Math.round(cur.wind_speed_10m || 0) +
+          (lang === "ar" ? " كم/س " : " km/h ") +
+          windArrow(cur.wind_direction_10m);
+        parts.push('<br/><span class="w">' + w + "</span>");
+      }
+      if (els.togHum.checked && cur)
+        parts.push('<br/><span class="w">' + (lang === "ar" ? "رطوبة " : "RH ") + cur.relative_humidity_2m + "%</span>");
+      if (els.togPress.checked && cur)
+        parts.push('<br/><span class="w">' + Math.round(cur.surface_pressure) + " hPa</span>");
+      if (els.togDew.checked && cur && cur.dew_point_2m != null)
+        parts.push('<br/><span class="w">' + (lang === "ar" ? "ندى " : "Td ") + Math.round(cur.dew_point_2m) + "°</span>");
+      parts.push("</div>");
+      return parts.join("");
+    }
+
+    function renderStations() {
+      stationGroup.clearLayers();
+      stationMarkers.length = 0;
+      if (!anyObsToggle()) return;
+      UAE_CITIES.forEach((city) => {
+        const cur = weatherCache[city.nameEn];
+        const html = buildStationHtml(city, cur);
+        const icon = L.divIcon({
+          className: "station-marker-wrap",
+          html,
+          iconSize: [0, 0],
+          iconAnchor: [0, 0],
+        });
+        const m = L.marker([city.lat, city.lon], { icon, zIndexOffset: 800 });
+        m.addTo(stationGroup);
+        stationMarkers.push(m);
+      });
+    }
+
+    async function fetchAndRenderStations() {
+      if (!anyObsToggle()) {
+        stationGroup.clearLayers();
+        return;
+      }
+      const need = "temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,surface_pressure,dew_point_2m";
+      await Promise.all(
+        UAE_CITIES.map(async (city) => {
+          try {
+            const params = new URLSearchParams({
+              latitude: city.lat.toFixed(5),
+              longitude: city.lon.toFixed(5),
+              current: need,
+              timezone: "Asia/Dubai",
+              wind_speed_unit: "kmh",
+            });
+            const res = await fetch("https://api.open-meteo.com/v1/forecast?" + params);
+            const data = await res.json();
+            weatherCache[city.nameEn] = data.current;
+          } catch (e) {
+            console.warn(e);
+          }
+        })
+      );
+      renderStations();
+    }
+
+    applyLang();
+    loadBoundaries();
+    loadRainViewer();
+    fetchAndRenderStations();
+    loadForecast();
+
+    setInterval(() => {
+      if (anyObsToggle()) fetchAndRenderStations();
+    }, 10 * 60 * 1000);
+  </script>
 </body>
 </html>
